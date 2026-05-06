@@ -235,6 +235,8 @@ const addMonths = (date, months) => {
     return `${parts[0]} ${parts[1]} ${parts[2]}`;
 };
 
+const formatExactDate = (date) => date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
 function calculate() {
     const uId = $('#unit-select').val();
     const unit = INVENTORY.find(i => i.u === uId);
@@ -310,9 +312,10 @@ function calculate() {
         // 3-Year Post Handover Schedule
         const phMonths = [3, 6, 9, 12, 16, 18, 21, 24, 27, 30, 33, 36];
         const phRates = [0.03, 0.03, 0.03, 0.05, 0.03, 0.03, 0.03, 0.05, 0.03, 0.03, 0.03, 0.03];
+        const completionDate = new Date(today);
+        completionDate.setMonth(completionDate.getMonth() + 24);
         phMonths.forEach((m, idx) => {
-            // Post handover dates from completion? We don't have exact completion date, so we leave it as relative string
-            schedule.push({ date: `${m} mo post-handover`, desc: `${idx + 7}th Installment`, percent: `${(phRates[idx]*100).toFixed(0)}%`, amt: netPrice * phRates[idx] });
+            schedule.push({ date: formatExactDate(new Date(completionDate.getFullYear(), completionDate.getMonth() + m, completionDate.getDate())), desc: `${idx + 7}th Installment`, percent: `${(phRates[idx]*100).toFixed(0)}%`, amt: netPrice * phRates[idx] });
         });
 
     } else if (plan === '5yr') {
@@ -325,8 +328,10 @@ function calculate() {
         schedule.push({ date: 'On completion', desc: '6th Installment', percent: '10%', amt: netPrice * 0.10 });
         
         // 5-Year Post Handover Schedule
+        const completionDate = new Date(today);
+        completionDate.setMonth(completionDate.getMonth() + 24);
         for (let i = 1; i <= 10; i++) {
-            schedule.push({ date: `${i * 6} mo post-handover`, desc: `${i + 6}th Installment`, percent: '4%', amt: netPrice * 0.04 });
+            schedule.push({ date: formatExactDate(new Date(completionDate.getFullYear(), completionDate.getMonth() + (i * 6), completionDate.getDate())), desc: `${i + 6}th Installment`, percent: '4%', amt: netPrice * 0.04 });
         }
     }
 
@@ -408,19 +413,19 @@ async function generateProfessionalPDF() {
     const spacing = 12.25;
     
     const detailsList = [
-        { text: data.unit.u, row: 2 },
-        { text: data.unit.type, row: 3 },
-        { text: `${data.unit.area} SQ.FT`, row: 4 },
-        { text: formatter.format(data.netPrice), row: 5 },
-        { text: formatter.format(data.dpAmt), row: 6 },
-        { text: formatter.format(data.dldFee), row: 7 },
-        { text: formatter.format(data.adminFee), row: 8 },
-        { text: data.plan === 'standard' ? 'Standard 60/40' : (data.plan === '3yr' ? '3-Yr Post Handover' : '5-Yr Post Handover'), row: 9 },
-        { text: data.pool ? "Included (+100k)" : "N/A", row: 10 }
+        { text: data.unit.u, row: 2, x: 100 },
+        { text: data.unit.type, row: 3, x: 100 },
+        { text: `${data.unit.area} SQ.FT`, row: 4, x: 100 },
+        { text: formatter.format(data.netPrice).replace('AED', '').trim(), row: 5, x: 174, align: 'right' },
+        { text: formatter.format(data.dpAmt).replace('AED', '').trim(), row: 6, x: 174, align: 'right' },
+        { text: formatter.format(data.dldFee).replace('AED', '').trim(), row: 7, x: 174, align: 'right' },
+        { text: formatter.format(data.adminFee).replace('AED', '').trim(), row: 8, x: 174, align: 'right' },
+        { text: data.plan === 'standard' ? 'Standard 60/40' : (data.plan === '3yr' ? '3-Yr Post Handover' : '5-Yr Post Handover'), row: 9, x: 100 },
+        { text: data.pool ? "Included (+100k)" : "N/A", row: 10, x: 100 }
     ];
 
     detailsList.forEach(item => {
-        doc.text(item.text, 80, startY + (item.row * spacing));
+        doc.text(item.text, item.x, startY + (item.row * spacing), item.align ? { align: item.align } : undefined);
     });
     
     const validityDate = addMonths(today, 0); // Need to calculate actual +14 days if needed, but keeping as string for now
@@ -441,15 +446,15 @@ async function generateProfessionalPDF() {
                 img.src = floorPlanB64;
             });
             
-            const maxW = 120;
-            const maxH = 140;
+            const maxW = 128;
+            const maxH = 168;
             const ratio = Math.min(maxW / imgDims.w, maxH / imgDims.h);
             const finalW = imgDims.w * ratio;
             const finalH = imgDims.h * ratio;
             
             // Center the image within the boundary
-            const finalX = 130 + (maxW - finalW) / 2;
-            const finalY = 45 + (maxH - finalH) / 2;
+            const finalX = 160 + (maxW - finalW) / 2;
+            const finalY = 18 + (maxH - finalH) / 2;
             
             // Extract format from base64
             let format = 'JPEG';
@@ -474,9 +479,9 @@ async function generateProfessionalPDF() {
     function renderFloorPlanPlaceholder(doc) {
         doc.setDrawColor(197, 160, 89);
         doc.setLineDashPattern([2, 2], 0);
-        doc.rect(130, 45, 120, 140);
+        doc.rect(160, 18, 128, 168);
         doc.setTextColor(150, 150, 150);
-        doc.text("Floor Plan Layout \n(Dynamic Image Insertion)", 190, 115, { align: 'center' });
+        doc.text("Floor Plan Layout \n(Dynamic Image Insertion)", 224, 102, { align: 'center' });
         doc.setLineDashPattern([], 0); // Reset dash
     }
 
@@ -484,42 +489,56 @@ async function generateProfessionalPDF() {
     doc.addPage();
     doc.addImage(bgPlan, 'JPEG', 0, 0, 297, 210);
     
-    const mid = Math.ceil(data.schedule.length / 2);
-    const col1 = data.schedule.slice(0, mid);
-    const col2 = data.schedule.slice(mid);
-
-    let tableY = 46.5;
-    const rowHeight = 9.8;
-    doc.setFont("Gotham", "bold"); // Bold for table rows based on mockup
+    const renderTwoColumns = data.schedule.length > 15;
+    let tableY = 50.8;
+    const rowHeight = 9.5;
+    doc.setFont("Gotham", "bold");
     doc.setFontSize(8);
     doc.setTextColor(11, 29, 51);
-    
-    // Render Left Column
-    col1.forEach((row, idx) => {
-        const yPos = tableY + (idx * rowHeight);
-        doc.text(row.date, 30, yPos, { align: 'center' });
-        doc.text(row.desc, 75, yPos, { align: 'center' });
-        doc.text(row.percent, 115, yPos, { align: 'center' });
-        doc.text(formatter.format(row.amt), 145, yPos, { align: 'center' });
-    });
 
-    // Render Right Column
-    col2.forEach((row, idx) => {
-        const yPos = tableY + (idx * rowHeight);
-        doc.text(row.date, 165, yPos, { align: 'center' });
-        doc.text(row.desc, 210, yPos, { align: 'center' });
-        doc.text(row.percent, 250, yPos, { align: 'center' });
-        doc.text(formatter.format(row.amt), 280, yPos, { align: 'center' });
-    });
+    if (renderTwoColumns) {
+        const mid = Math.ceil(data.schedule.length / 2);
+        const col1 = data.schedule.slice(0, mid);
+        const col2 = data.schedule.slice(mid);
 
-    // Render Total Row at the bottom of Right Column
-    const totalY = tableY + (col2.length * rowHeight);
-    doc.setFillColor(245, 232, 211); // #F5E8D3 light cream
-    doc.rect(148.5, totalY - 6.5, 140.5, rowHeight, 'F');
-    doc.setTextColor(11, 29, 51);
-    doc.text("Total Payment", 210, totalY, { align: 'center' });
-    doc.text("100%", 250, totalY, { align: 'center' });
-    doc.text(formatter.format(data.netPrice + data.dldFee + data.adminFee), 280, totalY, { align: 'center' });
+        col1.forEach((row, idx) => {
+            const yPos = tableY + (idx * rowHeight);
+            doc.text(row.date, 30, yPos, { align: 'center' });
+            doc.text(row.desc, 75, yPos, { align: 'center' });
+            doc.text(row.percent, 115, yPos, { align: 'center' });
+            doc.text(formatter.format(row.amt), 145, yPos, { align: 'center' });
+        });
+
+        col2.forEach((row, idx) => {
+            const yPos = tableY + (idx * rowHeight);
+            doc.text(row.date, 165, yPos, { align: 'center' });
+            doc.text(row.desc, 210, yPos, { align: 'center' });
+            doc.text(row.percent, 250, yPos, { align: 'center' });
+            doc.text(formatter.format(row.amt), 280, yPos, { align: 'center' });
+        });
+
+        const totalY = tableY + (col2.length * rowHeight);
+        doc.setFillColor(245, 232, 211);
+        doc.rect(148.5, totalY - 6.5, 140.5, rowHeight, 'F');
+        doc.text("Total Payment", 210, totalY, { align: 'center' });
+        doc.text("100%", 250, totalY, { align: 'center' });
+        doc.text(formatter.format(data.netPrice + data.dldFee + data.adminFee), 280, totalY, { align: 'center' });
+    } else {
+        data.schedule.forEach((row, idx) => {
+            const yPos = tableY + (idx * rowHeight);
+            doc.text(row.date, 30, yPos, { align: 'center' });
+            doc.text(row.desc, 95, yPos, { align: 'center' });
+            doc.text(row.percent, 170, yPos, { align: 'center' });
+            doc.text(formatter.format(row.amt), 255, yPos, { align: 'center' });
+        });
+
+        const totalY = tableY + (data.schedule.length * rowHeight);
+        doc.setFillColor(245, 232, 211);
+        doc.rect(18, totalY - 6.5, 271, rowHeight, 'F');
+        doc.text("Total Payment", 170, totalY, { align: 'center' });
+        doc.text("100%", 220, totalY, { align: 'center' });
+        doc.text(formatter.format(data.netPrice + data.dldFee + data.adminFee), 272, totalY, { align: 'right' });
+    }
 
     // PAGE 4: FINAL PAGE
     doc.addPage();
