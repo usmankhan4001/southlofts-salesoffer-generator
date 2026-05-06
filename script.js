@@ -413,6 +413,19 @@ async function generateProfessionalPDF() {
     const spacing = 12.25;
     
     const detailsList = [
+        { text: data.unit.u, row: 2, x: 100 },
+        { text: data.unit.type, row: 3, x: 100 },
+        { text: `${data.unit.area} SQ.FT`, row: 4, x: 100 },
+        { text: formatter.format(data.netPrice).replace('AED', '').trim(), row: 5, x: 174, align: 'right' },
+        { text: formatter.format(data.dpAmt).replace('AED', '').trim(), row: 6, x: 174, align: 'right' },
+        { text: formatter.format(data.dldFee).replace('AED', '').trim(), row: 7, x: 174, align: 'right' },
+        { text: formatter.format(data.adminFee).replace('AED', '').trim(), row: 8, x: 174, align: 'right' },
+        { text: data.plan === 'standard' ? 'Standard 60/40' : (data.plan === '3yr' ? '3-Yr Post Handover' : '5-Yr Post Handover'), row: 9, x: 100 },
+        { text: data.pool ? "Included (+100k)" : "N/A", row: 10, x: 100 }
+    ];
+
+    detailsList.forEach(item => {
+        doc.text(item.text, item.x, startY + (item.row * spacing), item.align ? { align: item.align } : undefined);
         { text: data.unit.u, row: 2, x: 76 },
         { text: data.unit.type, row: 3, x: 76 },
         { text: `${data.unit.area} SQ.FT`, row: 4, x: 76 },
@@ -446,6 +459,8 @@ async function generateProfessionalPDF() {
                 img.src = floorPlanB64;
             });
             
+            const maxW = 128;
+            const maxH = 168;
             const maxW = 105;
             const maxH = 150;
             const ratio = Math.min(maxW / imgDims.w, maxH / imgDims.h);
@@ -453,6 +468,8 @@ async function generateProfessionalPDF() {
             const finalH = imgDims.h * ratio;
             
             // Center the image within the boundary
+            const finalX = 160 + (maxW - finalW) / 2;
+            const finalY = 18 + (maxH - finalH) / 2;
             const finalX = 176 + (maxW - finalW) / 2;
             const finalY = 28 + (maxH - finalH) / 2;
             
