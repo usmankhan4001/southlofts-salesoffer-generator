@@ -170,16 +170,16 @@ function initFilters() {
     $('#filter-type').empty().append('<option value="all">ALL TYPES</option>');
     types.forEach(t => $('#filter-type').append(`<option value="${t}">${t}</option>`));
 
-    $('#unit-select').select2({ placeholder: "SEARCH UNIT NO..." });
+    $('#unit-select').select2({ placeholder: "SEARCH UNIT NO...", width: '100%' });
     updateUnitDropdown();
     $('#filter-floor, #filter-type').on('change', updateUnitDropdown);
 }
 
 function updateUnitDropdown() {
-    const floor = $('#filter-floor').val();
-    const type = $('#filter-type').val();
+    const floor = $('#filter-floor').val() || 'all';
+    const type = $('#filter-type').val() || 'all';
     $('#unit-select').empty().append('<option value="">SELECT UNIT</option>');
-    
+
     INVENTORY.forEach(item => {
         const floorMatch = floor === 'all' || item.floor === floor;
         const typeMatch = type === 'all' || item.type.includes(type);
@@ -187,6 +187,8 @@ function updateUnitDropdown() {
             $('#unit-select').append(new Option(`UNIT ${item.u} - ${item.type}`, item.u));
         }
     });
+
+    $('#unit-select').val('').trigger('change.select2');
 }
 
 // Convert image URL to Base64 for jsPDF
