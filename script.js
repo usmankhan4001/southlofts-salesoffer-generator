@@ -426,6 +426,19 @@ async function generateProfessionalPDF() {
 
     detailsList.forEach(item => {
         doc.text(item.text, item.x, startY + (item.row * spacing), item.align ? { align: item.align } : undefined);
+        { text: data.unit.u, row: 2, x: 76 },
+        { text: data.unit.type, row: 3, x: 76 },
+        { text: `${data.unit.area} SQ.FT`, row: 4, x: 76 },
+        { text: formatter.format(data.netPrice), row: 5, x: 76 },
+        { text: formatter.format(data.dpAmt), row: 6, x: 76 },
+        { text: formatter.format(data.dldFee), row: 7, x: 76 },
+        { text: formatter.format(data.adminFee), row: 8, x: 76 },
+        { text: data.plan === 'standard' ? 'Standard 60/40' : (data.plan === '3yr' ? '3-Yr Post Handover' : '5-Yr Post Handover'), row: 9, x: 76 },
+        { text: data.pool ? "Included (+100k)" : "N/A", row: 10, x: 76 }
+    ];
+
+    detailsList.forEach(item => {
+        doc.text(item.text, item.x, startY + (item.row * spacing));
     });
     
     const validityDate = addMonths(today, 0); // Need to calculate actual +14 days if needed, but keeping as string for now
@@ -448,6 +461,8 @@ async function generateProfessionalPDF() {
             
             const maxW = 128;
             const maxH = 168;
+            const maxW = 105;
+            const maxH = 150;
             const ratio = Math.min(maxW / imgDims.w, maxH / imgDims.h);
             const finalW = imgDims.w * ratio;
             const finalH = imgDims.h * ratio;
@@ -455,6 +470,8 @@ async function generateProfessionalPDF() {
             // Center the image within the boundary
             const finalX = 160 + (maxW - finalW) / 2;
             const finalY = 18 + (maxH - finalH) / 2;
+            const finalX = 176 + (maxW - finalW) / 2;
+            const finalY = 28 + (maxH - finalH) / 2;
             
             // Extract format from base64
             let format = 'JPEG';
@@ -479,9 +496,9 @@ async function generateProfessionalPDF() {
     function renderFloorPlanPlaceholder(doc) {
         doc.setDrawColor(197, 160, 89);
         doc.setLineDashPattern([2, 2], 0);
-        doc.rect(160, 18, 128, 168);
+        doc.rect(176, 28, 105, 150);
         doc.setTextColor(150, 150, 150);
-        doc.text("Floor Plan Layout \n(Dynamic Image Insertion)", 224, 102, { align: 'center' });
+        doc.text("Floor Plan Layout \n(Dynamic Image Insertion)", 228, 103, { align: 'center' });
         doc.setLineDashPattern([], 0); // Reset dash
     }
 
@@ -490,8 +507,8 @@ async function generateProfessionalPDF() {
     doc.addImage(bgPlan, 'JPEG', 0, 0, 297, 210);
     
     const renderTwoColumns = data.schedule.length > 15;
-    let tableY = 50.8;
-    const rowHeight = 9.5;
+    let tableY = 46.5;
+    const rowHeight = 9.8;
     doc.setFont("Gotham", "bold");
     doc.setFontSize(8);
     doc.setTextColor(11, 29, 51);
