@@ -1,0 +1,1603 @@
+
+=== File: ./index.html ===
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>South Lofts | Executive Investment Calculator</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root { 
+            --color-nor-de-vigne: #3D3935;
+            --color-egyptian-earth: #B46B4A;
+            --color-emerald-green: #004D40;
+            --color-wasabi: #8FB67E;
+            --pci-cream: #FDFBF7;
+        }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--pci-cream); 
+            color: var(--color-nor-de-vigne);
+        }
+
+        .exec-card {
+            background: white;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .exec-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.12);
+        }
+
+        input, select {
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            color: var(--color-nor-de-vigne);
+            transition: all 0.3s;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+        input:focus, select:focus {
+            border-color: var(--color-emerald-green);
+            background-color: white;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 77, 64, 0.1);
+        }
+
+        .select2-container .select2-selection--single {
+            height: 52px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding-top: 10px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--color-nor-de-vigne);
+            font-weight: 600;
+            padding-left: 16px;
+        }
+        .select2-dropdown {
+            background: white;
+            color: var(--color-nor-de-vigne);
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .select2-results__option--highlighted {
+            background: var(--color-emerald-green) !important;
+            color: white !important;
+        }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+        ::-webkit-scrollbar-thumb { background: var(--color-egyptian-earth); border-radius: 10px; }
+
+        .row-milestone { background: #FEF3E5; border-left: 4px solid var(--color-egyptian-earth); }
+        .row-balloon { background: #F0FDF4; border-left: 4px solid var(--color-wasabi); }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div class="max-w-[1600px] mx-auto p-4 lg:p-8">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-10 border-b border-slate-200 pb-6">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight" style="color: var(--color-nor-de-vigne);">SOUTH LOFTS</h1>
+                <p class="text-xs font-bold tracking-[0.2em] mt-1" style="color: var(--color-emerald-green);">PREMIER CHOICE INTERNATIONAL</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-bold text-slate-400 tracking-[0.3em]">FOR INTERNAL USE ONLY</p>
+                <p class="text-xs font-bold mt-1" style="color: var(--color-egyptian-earth);">INVESTMENT SUMMARY CALCULATOR</p>
+            </div>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- LEFT: CONTROLS -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Unit Selection -->
+                <section class="exec-card p-8 space-y-6">
+                    <h2 class="text-sm font-black uppercase tracking-widest border-b pb-4" style="color: var(--color-emerald-green); border-color: rgba(0,77,64,0.1);">Inventory Search</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-500 uppercase">Floor</label>
+                            <select id="filter-floor" class="w-full p-3 rounded-xl text-xs font-bold"></select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-500 uppercase">Type</label>
+                            <select id="filter-type" class="w-full p-3 rounded-xl text-xs font-bold"></select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase">Select Unit</label>
+                        <select id="unit-select" class="w-full rounded-xl"></select>
+                    </div>
+
+                    <div id="unit-specs" class="grid grid-cols-2 gap-3 opacity-50 transition-opacity duration-500">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase">Net Area</p>
+                            <p class="text-lg font-black" style="color: var(--color-nor-de-vigne);"><span id="spec-area">0</span> <span class="text-[9px] font-normal">SQFT</span></p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase">Category</p>
+                            <p id="spec-type" class="text-lg font-black uppercase" style="color: var(--color-nor-de-vigne);">-</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Proposal Options -->
+                <section class="exec-card p-8 space-y-6">
+                    <h2 class="text-sm font-black uppercase tracking-widest border-b pb-4" style="color: var(--color-emerald-green); border-color: rgba(0,77,64,0.1);">Financial Parameters</h2>
+                    
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase">Discount %</label>
+                        <input type="number" id="input-discount" value="0" min="0" step="0.5" class="w-full p-4 rounded-xl text-xs font-bold text-center">
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-500 uppercase">Payment Plan Structure</label>
+                        <select id="plan-mode" class="w-full p-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-white" style="background: var(--color-nor-de-vigne);">
+                            <option value="standard">Standard Plan (60/40)</option>
+                            <option value="3yr">3-Year Post Handover (50/10/40)</option>
+                            <option value="5yr">5-Year Post Handover (50/10/40)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-4 pt-4 border-t border-slate-100">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-600">Fully Furnished</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggle-furnish" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8FB67E]"></div>
+                            </label>
+                        </div>
+                        
+                        <div id="pool-container" class="flex items-center justify-between opacity-50 pointer-events-none transition-all">
+                            <span class="text-xs font-bold text-slate-600">Private Pool (+100k)</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggle-pool" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#004D40]"></div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- RIGHT: DASHBOARD & SCHEDULE -->
+            <div class="lg:col-span-8 space-y-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="exec-card p-8 border-l-4" style="border-color: var(--color-egyptian-earth);">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Net Investment</p>
+                        <h2 id="dash-net" class="text-3xl font-black mt-2" style="color: var(--color-egyptian-earth);">AED 0</h2>
+                    </div>
+                    
+                    <div class="exec-card p-8 border-l-4" style="border-color: var(--color-emerald-green);">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Initial Liquidity</p>
+                        <h2 id="dash-dp" class="text-3xl font-black mt-2" style="color: var(--color-emerald-green);">AED 0</h2>
+                    </div>
+                    
+                    <div class="exec-card p-8 border-l-4" style="border-color: var(--color-wasabi);">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">DLD & Admin Fees</p>
+                        <h2 id="dash-fees" class="text-3xl font-black mt-2" style="color: #5A8A4D;">AED 0</h2>
+                    </div>
+                </div>
+
+                <div class="exec-card rounded-2xl overflow-hidden border border-slate-100">
+                    <div class="p-6 flex justify-between items-center border-b border-slate-100 bg-white">
+                        <h3 class="text-[11px] font-black uppercase tracking-[0.2em]" style="color: var(--color-nor-de-vigne);">Payment Schedule Analysis</h3>
+                        <span id="badge-plan" class="text-[8px] px-4 py-1.5 rounded-full font-black uppercase tracking-widest text-white" style="background: var(--color-emerald-green);">STANDARD</span>
+                    </div>
+                    <div class="overflow-y-auto max-h-[60vh]">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 sticky top-0 z-10">
+                                <tr class="text-[9px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">
+                                    <th class="p-5 w-28">Timeline</th>
+                                    <th class="p-5">Milestone Description</th>
+                                    <th class="p-5 text-right w-40">Amount (AED)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedule-body" class="divide-y divide-slate-50 text-[11px]"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-4">
+                    <button id="btn-pdf" class="px-10 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg text-white transition-all duration-300 hover:shadow-xl hover:scale-[1.02]" style="background: var(--color-egyptian-earth);">
+                        Generate Executive PDF
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="fonts.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+=== File: ./Gotham/demo.html ===
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, noarchive">
+    <meta name="format-detection" content="telephone=no">
+    <title>Transfonter demo</title>
+    <link href="stylesheet.css" rel="stylesheet">
+    <style>
+        /*
+        http://meyerweb.com/eric/tools/css/reset/
+        v2.0 | 20110126
+        License: none (public domain)
+        */
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center,
+        dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed,
+        figure, figcaption, footer, header, hgroup,
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+        /* HTML5 display-role reset for older browsers */
+        article, aside, details, figcaption, figure,
+        footer, header, hgroup, menu, nav, section {
+            display: block;
+        }
+        body {
+            line-height: 1;
+        }
+        ol, ul {
+            list-style: none;
+        }
+        blockquote, q {
+            quotes: none;
+        }
+        blockquote:before, blockquote:after,
+        q:before, q:after {
+            content: '';
+            content: none;
+        }
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+        /* common styles */
+        body {
+            background: #f1f1f1;
+            color: #000;
+        }
+        .page {
+            background: #fff;
+            width: 920px;
+            margin: 0 auto;
+            padding: 20px 20px 0 20px;
+            overflow: hidden;
+        }
+        .font-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            margin-bottom: 40px;
+            line-height: 1.3;
+            white-space: nowrap;
+            padding-bottom: 5px;
+        }
+        h1 {
+            position: relative;
+            background: #444;
+            font-size: 32px;
+            color: #fff;
+            padding: 10px 20px;
+            margin: 0 -20px 12px -20px;
+        }
+        .letters {
+            font-size: 25px;
+            margin-bottom: 20px;
+        }
+        .s10:before {
+            content: '10px';
+        }
+        .s11:before {
+            content: '11px';
+        }
+        .s12:before {
+            content: '12px';
+        }
+        .s14:before {
+            content: '14px';
+        }
+        .s18:before {
+            content: '18px';
+        }
+        .s24:before {
+            content: '24px';
+        }
+        .s30:before {
+            content: '30px';
+        }
+        .s36:before {
+            content: '36px';
+        }
+        .s48:before {
+            content: '48px';
+        }
+        .s60:before {
+            content: '60px';
+        }
+        .s72:before {
+            content: '72px';
+        }
+        .s10:before, .s11:before, .s12:before, .s14:before,
+        .s18:before, .s24:before, .s30:before, .s36:before,
+        .s48:before, .s60:before, .s72:before {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            font-weight: normal;
+            font-style: normal;
+            color: #999;
+            padding-right: 6px;
+        }
+        pre {
+            display: block;
+            position: relative;
+            padding: 9px;
+            margin: 0 0 10px;
+            font-family: Monaco, Menlo, Consolas, "Courier New", monospace !important;
+            font-size: 13px;
+            line-height: 1.428571429;
+            color: #333;
+            font-weight: normal !important;
+            font-style: normal !important;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            overflow-x: auto;
+            border-radius: 4px;
+        }
+        pre:after {
+            display: block;
+            position: absolute;
+            right: 0;
+            top: 0;
+            content: 'Usage';
+            line-height: 1;
+            padding: 5px 8px;
+            font-size: 12px;
+            color: #767676;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-right: none;
+            border-top: none;
+            border-radius: 0 4px 0 4px;
+            z-index: 10;
+        }
+        /* responsive */
+        @media (max-width: 959px) {
+            .page {
+                width: auto;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 300; font-style: italic;">
+        <h1>Gotham Light Italic</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 300;
+    font-style: italic;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: bold; font-style: italic;">
+        <h1>Gotham Bold Italic</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: bold;
+    font-style: italic;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 200; font-style: normal;">
+        <h1>Gotham ExtraLight</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 200;
+    font-style: normal;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 100; font-style: normal;">
+        <h1>Gotham Thin</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 100;
+    font-style: normal;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: normal; font-style: normal;">
+        <h1>Gotham Book</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: normal;
+    font-style: normal;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 100; font-style: italic;">
+        <h1>Gotham Thin Italic</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 100;
+    font-style: italic;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 500; font-style: italic;">
+        <h1>Gotham Medium Italic</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 500;
+    font-style: italic;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham Ultra'; font-weight: normal; font-style: italic;">
+        <h1>Gotham Ultra Italic</h1>
+        <pre>.your-style {
+    font-family: 'Gotham Ultra';
+    font-weight: normal;
+    font-style: italic;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: normal; font-style: italic;">
+        <h1>Gotham Book Italic</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: normal;
+    font-style: italic;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 900; font-style: italic;">
+        <h1>Gotham Black Italic</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 900;
+    font-style: italic;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 300; font-style: normal;">
+        <h1>Gotham Light</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 300;
+    font-style: normal;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: bold; font-style: normal;">
+        <h1>Gotham Bold</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: bold;
+    font-style: normal;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 500; font-style: normal;">
+        <h1>Gotham Medium</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 500;
+    font-style: normal;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham Ultra'; font-weight: normal; font-style: normal;">
+        <h1>Gotham Ultra</h1>
+        <pre>.your-style {
+    font-family: 'Gotham Ultra';
+    font-weight: normal;
+    font-style: normal;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 200; font-style: italic;">
+        <h1>Gotham ExtraLight Italic</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 200;
+    font-style: italic;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+    <div class="demo" style="font-family: 'Gotham'; font-weight: 900; font-style: normal;">
+        <h1>Gotham Black</h1>
+        <pre>.your-style {
+    font-family: 'Gotham';
+    font-weight: 900;
+    font-style: normal;
+}</pre>
+        <div class="font-container">
+            <p class="letters">
+                abcdefghijklmnopqrstuvwxyz<br>
+ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                0123456789.:,;()*!?'@#<>$%&^+-=~
+            </p>
+            <p class="s10" style="font-size: 10px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s11" style="font-size: 11px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s12" style="font-size: 12px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s14" style="font-size: 14px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s18" style="font-size: 18px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s24" style="font-size: 24px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s30" style="font-size: 30px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s36" style="font-size: 36px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s48" style="font-size: 48px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s60" style="font-size: 60px;">The quick brown fox jumps over the lazy dog.</p>
+            <p class="s72" style="font-size: 72px;">The quick brown fox jumps over the lazy dog.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+=== File: ./Gotham/stylesheet.css ===
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-LightItalic.eot');
+    src: local('Gotham Light Italic'), local('Gotham-LightItalic'),
+        url('Gotham-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-LightItalic.woff2') format('woff2'),
+        url('Gotham-LightItalic.woff') format('woff'),
+        url('Gotham-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-BoldItalic.eot');
+    src: local('Gotham Bold Italic'), local('Gotham-BoldItalic'),
+        url('Gotham-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-BoldItalic.woff2') format('woff2'),
+        url('Gotham-BoldItalic.woff') format('woff'),
+        url('Gotham-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-XLight.eot');
+    src: local('Gotham ExtraLight'), local('Gotham-XLight'),
+        url('Gotham-XLight.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-XLight.woff2') format('woff2'),
+        url('Gotham-XLight.woff') format('woff'),
+        url('Gotham-XLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-Thin.eot');
+    src: local('Gotham Thin'), local('Gotham-Thin'),
+        url('Gotham-Thin.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-Thin.woff2') format('woff2'),
+        url('Gotham-Thin.woff') format('woff'),
+        url('Gotham-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-Book.eot');
+    src: local('Gotham Book'), local('Gotham-Book'),
+        url('Gotham-Book.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-Book.woff2') format('woff2'),
+        url('Gotham-Book.woff') format('woff'),
+        url('Gotham-Book.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-ThinItalic.eot');
+    src: local('Gotham Thin Italic'), local('Gotham-ThinItalic'),
+        url('Gotham-ThinItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-ThinItalic.woff2') format('woff2'),
+        url('Gotham-ThinItalic.woff') format('woff'),
+        url('Gotham-ThinItalic.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-MediumItalic.eot');
+    src: local('Gotham Medium Italic'), local('Gotham-MediumItalic'),
+        url('Gotham-MediumItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-MediumItalic.woff2') format('woff2'),
+        url('Gotham-MediumItalic.woff') format('woff'),
+        url('Gotham-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gotham Ultra';
+    src: url('Gotham-UltraItalic.eot');
+    src: local('Gotham Ultra Italic'), local('Gotham-UltraItalic'),
+        url('Gotham-UltraItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-UltraItalic.woff2') format('woff2'),
+        url('Gotham-UltraItalic.woff') format('woff'),
+        url('Gotham-UltraItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-BookItalic.eot');
+    src: local('Gotham Book Italic'), local('Gotham-BookItalic'),
+        url('Gotham-BookItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-BookItalic.woff2') format('woff2'),
+        url('Gotham-BookItalic.woff') format('woff'),
+        url('Gotham-BookItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-BlackItalic.eot');
+    src: local('Gotham Black Italic'), local('Gotham-BlackItalic'),
+        url('Gotham-BlackItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-BlackItalic.woff2') format('woff2'),
+        url('Gotham-BlackItalic.woff') format('woff'),
+        url('Gotham-BlackItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-Light.eot');
+    src: local('Gotham Light'), local('Gotham-Light'),
+        url('Gotham-Light.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-Light.woff2') format('woff2'),
+        url('Gotham-Light.woff') format('woff'),
+        url('Gotham-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-Bold.eot');
+    src: local('Gotham Bold'), local('Gotham-Bold'),
+        url('Gotham-Bold.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-Bold.woff2') format('woff2'),
+        url('Gotham-Bold.woff') format('woff'),
+        url('Gotham-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-Medium.eot');
+    src: local('Gotham Medium'), local('Gotham-Medium'),
+        url('Gotham-Medium.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-Medium.woff2') format('woff2'),
+        url('Gotham-Medium.woff') format('woff'),
+        url('Gotham-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gotham Ultra';
+    src: url('Gotham-Ultra.eot');
+    src: local('Gotham Ultra'), local('Gotham-Ultra'),
+        url('Gotham-Ultra.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-Ultra.woff2') format('woff2'),
+        url('Gotham-Ultra.woff') format('woff'),
+        url('Gotham-Ultra.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-XLightItalic.eot');
+    src: local('Gotham ExtraLight Italic'), local('Gotham-XLightItalic'),
+        url('Gotham-XLightItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-XLightItalic.woff2') format('woff2'),
+        url('Gotham-XLightItalic.woff') format('woff'),
+        url('Gotham-XLightItalic.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('Gotham-Black.eot');
+    src: local('Gotham Black'), local('Gotham-Black'),
+        url('Gotham-Black.eot?#iefix') format('embedded-opentype'),
+        url('Gotham-Black.woff2') format('woff2'),
+        url('Gotham-Black.woff') format('woff'),
+        url('Gotham-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+
+
+=== File: ./script.js ===
+/* 
+ * South Lofts 1 | Official Sales Configurator Logic
+ */
+
+// Mapping for dynamic floor layout plans
+function getFloorPlanUrl(unitNumber) {
+    const floor = unitNumber.charAt(0);
+    const suffix = unitNumber.substring(1);
+
+    if (floor === "1") {
+        const u = parseInt(unitNumber);
+        const firstFloorMap = {
+            101: "./Layout plans/Unit 101 - Type C.png",
+            102: "./Layout plans/Unit 102 - Type C.png",
+            103: "./Layout plans/Unit 103 - Type C.png",
+            104: "./Layout plans/Unit 104 - Type A - With or Without Pool.png",
+            105: "./Layout plans/Unit 105 - Type C.png",
+            106: "./Layout plans/Unit 106 - Type C.png",
+            107: "./Layout plans/Unit 107 - Type C.png",
+            108: "./Layout plans/Unit 108 - Type C.png",
+            109: "./Layout plans/Unit 109 - Type E.png",
+            110: "./Layout plans/Unit 110- Type D.png",
+            111: "./Layout plans/Unit 111 - Type D.png",
+            112: "./Layout plans/Unit 112- Type E.png",
+            113: "./Layout plans/Unit 113 - Type C.png",
+            114: "./Layout plans/Unit 114 - Type C.png",
+            115: "./Layout plans/Unit 115 - Type C.png",
+            116: "./Layout plans/Unit 116 - Type B.png",
+            117: "./Layout plans/Unit 117 - Type C.png",
+            118: "./Layout plans/Unit 118 - Type D.png",
+            119: "./Layout plans/Unit 119 - Type D.png",
+            120: "./Layout plans/Unit 120 - Type D.png",
+            121: "./Layout plans/Unit 121 - Type D.png",
+            122: "./Layout plans/Unit 122 - Type D.png",
+            123: "./Layout plans/Unit 123 - Type D.png",
+            124: "./Layout plans/Unit 124 - Type E.png"
+        };
+        return firstFloorMap[u] || "";
+    } else {
+        const floorNum = parseInt(floor);
+        const seriesMap = {
+            "01": "./Layout plans/Floor-2-6---Serios-01---Type-C.png",
+            "02": "./Layout plans/Floor-2-6---Serios-02---Type-C.png",
+            "03": "./Layout plans/Floor-2-6---Serios-03---Type-C.png",
+            "06": "./Layout plans/Floor-2-6--Serios-06---Type-C.png",
+            "07": "./Layout plans/Floor-2-6--Serios-07---Type-C.png",
+            "08": "./Layout plans/Floor-2-6--Serios-08---Type-C.png",
+            "09": "./Layout plans/Floor-2-6--Serios-09---Type-E.png",
+            "10": "./Layout plans/Floor-2-6--Serios-10---Type-D.png",
+            "11": "./Layout plans/Floor-2-6--Serios-11---Type-D.png",
+            "12": "./Layout plans/Floor-2-6--Serios-12---Type-E.png",
+            "13": "./Layout plans/Floor-2-6--Serios-13---Type-C.png",
+            "14": "./Layout plans/Floor-2-6--Serios-14---Type-C.png",
+            "15": "./Layout plans/Floor-2-6--Serios-15---Type-C.png",
+            "16": "./Layout plans/Floor-2-6--Serios-16---Type-B.png",
+            "17": "./Layout plans/Floor-2-6--Serios-17---Type-B.png",
+            "19": "./Layout plans/Floor-2-6--Serios-19---Type-B.png",
+            "20": "./Layout plans/Floor-2-6--Serios-20---Type-D.png",
+            "21": "./Layout plans/Floor-2-6--Serios-21---Type-D.png",
+            "22": "./Layout plans/Floor-2-6--Serios-22---Type-D.png",
+            "23": "./Layout plans/Floor-2-6--Serios-23---Type-D.png",
+            "24": "./Layout plans/Floor-2-6--Serios-24---Type-D.png",
+            "25": "./Layout plans/Floor-2-6--Serios-25---Type-D.png"
+        };
+        
+        if (suffix === "04") {
+            if ([3, 5].includes(floorNum)) {
+                return "./Layout plans/Floor-35---Serios-04---Type-A.png";
+            }
+            return "./Layout plans/Floor-246---Serios-04---Type-A.png";
+        }
+        
+        if (suffix === "05") {
+            if ([3, 5].includes(floorNum)) {
+                return "./Layout plans/Floor-2-3--5-6--Serios-05---Type-A-C.png";
+            }
+            return "./Layout plans/Floor-2-4-6---Serios-05---Type-A.png";
+        }
+
+        return seriesMap[suffix] || "";
+    }
+}
+
+
+// Master Inventory Array (All 149 Units mapped correctly)
+const INVENTORY = [
+    { "u": "101", "floor": "1", "type": "C", "area": 360.59, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "102", "floor": "1", "type": "C", "area": 363.07, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "103", "floor": "1", "type": "C", "area": 350.04, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "104", "floor": "1", "type": "A (Flex)", "area": 522.16, "reg": 899000, "post": 975000, "pool": true },
+    { "u": "105", "floor": "1", "type": "A (Flex)", "area": 861.54, "reg": 999000, "post": 1100000, "pool": true },
+    { "u": "106", "floor": "1", "type": "C", "area": 351.12, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "107", "floor": "1", "type": "C", "area": 353.81, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "108", "floor": "1", "type": "C", "area": 352.84, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "109", "floor": "1", "type": "E (Flex)", "area": 504.72, "reg": 849000, "post": 935000, "pool": false },
+    { "u": "110", "floor": "1", "type": "D", "area": 326.68, "reg": 620000, "post": 690000, "pool": false },
+    { "u": "111", "floor": "1", "type": "D", "area": 325.72, "reg": 620000, "post": 690000, "pool": false },
+    { "u": "112", "floor": "1", "type": "E (Flex)", "area": 504.61, "reg": 849000, "post": 935000, "pool": false },
+    { "u": "113", "floor": "1", "type": "C", "area": 346.71, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "114", "floor": "1", "type": "C", "area": 340.79, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "115", "floor": "1", "type": "C", "area": 350.47, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "116", "floor": "1", "type": "B (Flex)", "area": 385.78, "reg": 699000, "post": 775000, "pool": true },
+    { "u": "117", "floor": "1", "type": "C", "area": 354.99, "reg": 645000, "post": 715000, "pool": false },
+    { "u": "118", "floor": "1", "type": "D", "area": 315.06, "reg": 620000, "post": 690000, "pool": false },
+    { "u": "119", "floor": "1", "type": "D", "area": 319.9, "reg": 620000, "post": 690000, "pool": false },
+    { "u": "120", "floor": "1", "type": "D", "area": 313.88, "reg": 620000, "post": 690000, "pool": false },
+    { "u": "121", "floor": "1", "type": "D", "area": 318.83, "reg": 620000, "post": 690000, "pool": false },
+    { "u": "122", "floor": "1", "type": "D", "area": 321.73, "reg": 620000, "post": 690000, "pool": false },
+    { "u": "123", "floor": "1", "type": "D", "area": 326.68, "reg": 620000, "post": 690000, "pool": false },
+    { "u": "124", "floor": "1", "type": "E (Flex)", "area": 536.15, "reg": 875000, "post": 975000, "pool": false },
+
+    // Floors 2 to 6 Generated 
+    ...generateFloors(2, 6)
+];
+
+// Helper to expand the inventory for floors 2-6 based on Floor 1 pattern
+function generateFloors(start, end) {
+    const floors = [];
+    const baseData = [
+        { suffix: "01", type: "C", area: 360.59, reg: 595000, post: 649000, pool: false },
+        { suffix: "02", type: "C", area: 363.07, reg: 595000, post: 649000, pool: false },
+        { suffix: "03", type: "C", area: 349.93, reg: 595000, post: 649000, pool: false },
+        { suffix: "04", type: "A (Flex)", area: 583.51, reg: 815000, post: 899000, pool: true },
+        { suffix: "05", type: "A (Flex)", area: 583.51, reg: 815000, post: 899000, pool: true },
+        { suffix: "06", type: "C", area: 351.12, reg: 595000, post: 649000, pool: false },
+        { suffix: "07", type: "C", area: 353.81, reg: 595000, post: 649000, pool: false },
+        { suffix: "08", type: "C", area: 352.84, reg: 595000, post: 649000, pool: false },
+        { suffix: "09", type: "E (Flex)", area: 504.83, reg: 775000, post: 850000, pool: false },
+        { suffix: "10", type: "D", area: 326.58, reg: 560000, post: 620000, pool: false },
+        { suffix: "11", type: "D", area: 325.93, reg: 560000, post: 620000, pool: false },
+        { suffix: "12", type: "E (Flex)", area: 504.61, reg: 775000, post: 850000, pool: false },
+        { suffix: "13", type: "C", area: 346.71, reg: 595000, post: 649000, pool: false },
+        { suffix: "14", type: "C", area: 340.79, reg: 595000, post: 649000, pool: false },
+        { suffix: "15", type: "C", area: 350.47, reg: 595000, post: 649000, pool: false },
+        { suffix: "16", type: "B (Flex)", area: 383.84, reg: 635000, post: 699000, pool: true },
+        { suffix: "17", type: "B (Flex)", area: 383.84, reg: 635000, post: 699000, pool: true },
+        { suffix: "18", type: "C", area: 354.99, reg: 595000, post: 649000, pool: false },
+        { suffix: "19", type: "D", area: 314.95, reg: 560000, post: 620000, pool: false },
+        { suffix: "20", type: "D", area: 319.9, reg: 560000, post: 620000, pool: false },
+        { suffix: "21", type: "D", area: 313.88, reg: 560000, post: 620000, pool: false },
+        { suffix: "22", type: "D", area: 318.83, reg: 560000, post: 620000, pool: false },
+        { suffix: "23", type: "D", area: 321.73, reg: 560000, post: 620000, pool: false },
+        { suffix: "24", type: "D", area: 326.68, reg: 560000, post: 620000, pool: false },
+        { suffix: "25", type: "E (Flex)", area: 536.15, reg: 799000, post: 890000, pool: false }
+    ];
+    for (let f = start; f <= end; f++) {
+        baseData.forEach(item => {
+            floors.push({ u: `${f}${item.suffix}`, floor: String(f), type: item.type, area: item.area, reg: item.reg, post: item.post, pool: item.pool });
+        });
+    }
+    return floors;
+}
+
+const formatter = new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 });
+
+$(document).ready(() => {
+    initFilters();
+    $('#unit-select').on('change', calculate);
+    $('input, select').on('change input', calculate);
+    $('#btn-pdf').on('click', generateProfessionalPDF);
+    calculate();
+});
+
+function initFilters() {
+    const floors = ["1", "2", "3", "4", "5", "6"];
+    const types = ["A (Flex)", "B (Flex)", "C", "D", "E (Flex)"];
+
+    $('#filter-floor').empty().append('<option value="all">ALL FLOORS</option>');
+    floors.forEach(f => $('#filter-floor').append(`<option value="${f}">${f}TH FLOOR</option>`));
+    $('#filter-type').empty().append('<option value="all">ALL TYPES</option>');
+    types.forEach(t => $('#filter-type').append(`<option value="${t}">${t}</option>`));
+
+    $('#unit-select').select2({ placeholder: "SEARCH UNIT NO...", width: '100%' });
+    updateUnitDropdown();
+    $('#filter-floor, #filter-type').on('change', updateUnitDropdown);
+}
+
+function updateUnitDropdown() {
+    const floor = $('#filter-floor').val() || 'all';
+    const type = $('#filter-type').val() || 'all';
+    $('#unit-select').empty().append('<option value="">SELECT UNIT</option>');
+
+    INVENTORY.forEach(item => {
+        const floorMatch = floor === 'all' || item.floor === floor;
+        const typeMatch = type === 'all' || item.type.includes(type);
+        if (floorMatch && typeMatch) {
+            $('#unit-select').append(new Option(`UNIT ${item.u} - ${item.type}`, item.u));
+        }
+    });
+
+    $('#unit-select').val('').trigger('change.select2');
+}
+
+// Convert image URL to Base64 for jsPDF
+const imageToBase64 = async (localUrl) => {
+    try {
+        const response = await fetch(localUrl);
+        if (!response.ok) throw new Error("Local fetch failed");
+        const blob = await response.blob();
+        return await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        console.warn(`Local fetch failed for ${localUrl} (likely due to file:// protocol). Attempting remote fallback...`);
+        try {
+            let filename = localUrl.split('/').pop();
+            if (filename.includes('SouthLofts')) {
+                filename = filename.replace(/ - /g, '---').replace(/ /g, '-');
+            } else if (filename.includes('Unit')) {
+                filename = filename.replace(/ - /g, '---').replace(/ /g, '-');
+            }
+            const remoteUrl = `https://images.premierchoiceint.online/images/2026/05/05/${filename}`;
+            const response = await fetch('https://corsproxy.io/?' + encodeURIComponent(remoteUrl));
+            if (!response.ok) throw new Error("Remote fetch failed");
+            const blob = await response.blob();
+            return await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (err) {
+            console.error("Failed to load image entirely:", err);
+            return null;
+        }
+    }
+};
+
+// Global Date Helper
+const addMonths = (date, months) => {
+    const d = new Date(date);
+    d.setMonth(d.getMonth() + months);
+    const parts = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).split(' ');
+    return `${parts[0]} ${parts[1]} ${parts[2]}`;
+};
+
+const formatExactDate = (date) => date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+function calculate() {
+    const uId = $('#unit-select').val();
+    const unit = INVENTORY.find(i => i.u === uId);
+
+    if (!unit) {
+        $('#unit-specs').css('opacity', '0');
+        return;
+    }
+
+    const plan = $('#plan-mode').val();
+    
+    // Core Base Logic: Get Total from dataset and derive the Rate
+    let baseTotal = (plan === 'standard') ? unit.reg : unit.post;
+    let baseRate = baseTotal / unit.area;
+
+    $('#unit-specs').css('opacity', '1');
+    $('#spec-type').text(unit.type);
+    $('#spec-area').text(unit.area);
+    $('#pool-container').toggleClass('opacity-50 pointer-events-none', !unit.pool);
+
+    // Property Adjustments
+    let adjustedTotal = baseTotal;
+    if (!$('#toggle-furnish').is(':checked')) adjustedTotal -= 25000;
+    if (unit.pool && $('#toggle-pool').is(':checked')) adjustedTotal += 100000;
+
+    // Apply Discount
+    let discPercent = parseFloat($('#input-discount').val()) || 0;
+    let netPrice = adjustedTotal * (1 - (discPercent / 100));
+
+    // Mandatory Fees
+    const dpAmt = netPrice * 0.20;
+    const dldFee = netPrice * 0.04;
+    const adminFee = 5250;
+
+    $('#dash-net').text(formatter.format(netPrice));
+    $('#dash-dp').text(formatter.format(dpAmt));
+    $('#dash-fees').text(formatter.format(dldFee + adminFee));
+
+    const table = $('#schedule-body');
+    table.empty();
+    let schedule = [];
+
+    // Helper for dates
+    const today = new Date();
+    const todayStr = addMonths(today, 0);
+
+    // Upfront Details (All Plans)
+    schedule.push({ date: todayStr, desc: 'Downpayment', percent: '20%', amt: dpAmt });
+    schedule.push({ date: todayStr, desc: 'DLD fee', percent: '4%', amt: dldFee });
+    schedule.push({ date: todayStr, desc: 'Admin fee', percent: '-', amt: adminFee });
+
+    // Official Plan Milestones
+    if (plan === 'standard') {
+        $('#badge-plan').text('STANDARD 60/40 PLAN');
+        schedule.push({ date: addMonths(today, 3), desc: '1st Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 6), desc: '2nd Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 9), desc: '3rd Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 12), desc: '4th Installment', percent: '10%', amt: netPrice * 0.10 });
+        schedule.push({ date: addMonths(today, 15), desc: '5th Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 18), desc: '6th Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 21), desc: '7th Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: 'On completion', desc: 'Completion', percent: '40%', amt: netPrice * 0.40 });
+        
+    } else if (plan === '3yr') {
+        $('#badge-plan').text('3-YEAR POST HANDOVER');
+        schedule.push({ date: addMonths(today, 5), desc: '1st Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 9), desc: '2nd Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 13), desc: '3rd Installment', percent: '10%', amt: netPrice * 0.10 });
+        schedule.push({ date: addMonths(today, 17), desc: '4th Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 21), desc: '5th Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: 'On completion', desc: '6th Installment', percent: '10%', amt: netPrice * 0.10 });
+        
+        // 3-Year Post Handover Schedule
+        const phMonths = [3, 6, 9, 12, 16, 18, 21, 24, 27, 30, 33, 36];
+        const phRates = [0.03, 0.03, 0.03, 0.05, 0.03, 0.03, 0.03, 0.05, 0.03, 0.03, 0.03, 0.03];
+        const completionDate = new Date(today);
+        completionDate.setMonth(completionDate.getMonth() + 24);
+        phMonths.forEach((m, idx) => {
+            schedule.push({ date: formatExactDate(new Date(completionDate.getFullYear(), completionDate.getMonth() + m, completionDate.getDate())), desc: `${idx + 7}th Installment`, percent: `${(phRates[idx]*100).toFixed(0)}%`, amt: netPrice * phRates[idx] });
+        });
+
+    } else if (plan === '5yr') {
+        $('#badge-plan').text('5-YEAR POST HANDOVER');
+        schedule.push({ date: addMonths(today, 5), desc: '1st Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 9), desc: '2nd Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 13), desc: '3rd Installment', percent: '10%', amt: netPrice * 0.10 });
+        schedule.push({ date: addMonths(today, 17), desc: '4th Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: addMonths(today, 21), desc: '5th Installment', percent: '5%', amt: netPrice * 0.05 });
+        schedule.push({ date: 'On completion', desc: '6th Installment', percent: '10%', amt: netPrice * 0.10 });
+        
+        // 5-Year Post Handover Schedule
+        const completionDate = new Date(today);
+        completionDate.setMonth(completionDate.getMonth() + 24);
+        for (let i = 1; i <= 10; i++) {
+            schedule.push({ date: formatExactDate(new Date(completionDate.getFullYear(), completionDate.getMonth() + (i * 6), completionDate.getDate())), desc: `${i + 6}th Installment`, percent: '4%', amt: netPrice * 0.04 });
+        }
+    }
+
+    schedule.forEach((row, idx) => {
+        const percentStr = row.percent !== '-' ? ` (${row.percent})` : '';
+        const isUpfront = idx < 3;
+        const rowClass = isUpfront ? 'row-balloon' : 'row-milestone';
+        const amtColor = isUpfront ? 'var(--color-emerald-green)' : 'var(--color-egyptian-earth)';
+        const descColor = isUpfront ? '#64748B' : 'var(--color-egyptian-earth)';
+        
+        table.append(`
+            <tr class="${rowClass}" style="color: var(--color-nor-de-vigne);">
+                <td class="p-4 uppercase text-[10px] font-black">${row.date}</td>
+                <td class="p-4 text-[10px] uppercase tracking-wide" style="color:${descColor}">${row.desc}${percentStr}</td>
+                <td class="p-4 text-right text-[11px] font-bold" style="color:${amtColor}">${formatter.format(row.amt)}</td>
+            </tr>
+        `);
+    });
+
+    window.exportData = { netPrice, dpAmt, dldFee, adminFee, unit, plan, schedule, furnished: $('#toggle-furnish').is(':checked'), pool: $('#toggle-pool').is(':checked') };
+}
+
+// ---------------------------------------------------------
+// PDF GENERATOR (Based on Official JPEGs)
+// ---------------------------------------------------------
+async function generateProfessionalPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', format: 'a4' });
+    const data = window.exportData;
+    if (!data) return alert("Select a unit first.");
+
+    // Retrieve Templates
+    const bgTitle = await imageToBase64('./SouthLofts - Sales Offer Title.jpg');
+    const bgDetails = await imageToBase64('./SouthLofts - Sales Offer 2nd pg.jpg');
+    const bgPlan = await imageToBase64('./SouthLofts - Sales Offer payment plan page.jpg');
+    const bgFinal = await imageToBase64('./SouthLofts - Sales Offer Final page.jpg');
+
+    if (!bgTitle || !bgDetails || !bgPlan || !bgFinal) {
+        alert("Failed to load PDF templates. If you are opening this file locally (file://), please run it via a local web server, or ensure your internet is connected for the remote fallback.");
+        return;
+    }
+
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB');
+    const serialNo = `SL-${today.getDate()}${today.getMonth()+1}${today.getFullYear().toString().slice(-2)}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    // PAGE 1: TITLE
+    doc.addImage(bgTitle, 'JPEG', 0, 0, 297, 210);
+    
+    // Add Gotham Fonts
+    if (window.GOTHAM_BOOK) {
+        doc.addFileToVFS('Gotham-Book.ttf', window.GOTHAM_BOOK);
+        doc.addFont('Gotham-Book.ttf', 'Gotham', 'normal');
+    }
+    if (window.GOTHAM_BOLD) {
+        doc.addFileToVFS('Gotham-Bold.ttf', window.GOTHAM_BOLD);
+        doc.addFont('Gotham-Bold.ttf', 'Gotham', 'bold');
+    }
+
+    doc.setFont("Gotham", "normal");
+    
+    // Mask the placeholder text with a dark green block, then write the correct text
+    doc.setFillColor(8, 55, 42); // Dark green matching background closely
+    doc.rect(18, 178, 65, 20, 'F'); 
+    
+    doc.setTextColor(255, 255, 255); // White text
+    doc.setFontSize(10);
+    doc.text(`ISSUE DATE: ${dateStr}`, 20, 185); 
+    doc.text(`SERIAL NO: ${serialNo}`, 20, 192);
+
+    // PAGE 2: DETAILS
+    doc.addPage();
+    doc.addImage(bgDetails, 'JPEG', 0, 0, 297, 210);
+    
+    doc.setTextColor(11, 29, 51);
+    doc.setFont("Gotham", "bold");
+    doc.setFontSize(8);
+    let startY = 48.9; 
+    const spacing = 12.25;
+    
+    const detailsList = [
+        { text: data.unit.u, row: 2, x: 100 },
+        { text: data.unit.type, row: 3, x: 100 },
+        { text: `${data.unit.area} SQ.FT`, row: 4, x: 100 },
+        { text: formatter.format(data.netPrice).replace('AED', '').trim(), row: 5, x: 174, align: 'right' },
+        { text: formatter.format(data.dpAmt).replace('AED', '').trim(), row: 6, x: 174, align: 'right' },
+        { text: formatter.format(data.dldFee).replace('AED', '').trim(), row: 7, x: 174, align: 'right' },
+        { text: formatter.format(data.adminFee).replace('AED', '').trim(), row: 8, x: 174, align: 'right' },
+        { text: data.plan === 'standard' ? 'Standard 60/40' : (data.plan === '3yr' ? '3-Yr Post Handover' : '5-Yr Post Handover'), row: 9, x: 100 },
+        { text: data.pool ? "Included (+100k)" : "N/A", row: 10, x: 100 }
+    ];
+
+    detailsList.forEach(item => {
+        doc.text(item.text, item.x, startY + (item.row * spacing), item.align ? { align: item.align } : undefined);
+        { text: data.unit.u, row: 2, x: 76 },
+        { text: data.unit.type, row: 3, x: 76 },
+        { text: `${data.unit.area} SQ.FT`, row: 4, x: 76 },
+        { text: formatter.format(data.netPrice), row: 5, x: 76 },
+        { text: formatter.format(data.dpAmt), row: 6, x: 76 },
+        { text: formatter.format(data.dldFee), row: 7, x: 76 },
+        { text: formatter.format(data.adminFee), row: 8, x: 76 },
+        { text: data.plan === 'standard' ? 'Standard 60/40' : (data.plan === '3yr' ? '3-Yr Post Handover' : '5-Yr Post Handover'), row: 9, x: 76 },
+        { text: data.pool ? "Included (+100k)" : "N/A", row: 10, x: 76 }
+    ];
+
+    detailsList.forEach(item => {
+        doc.text(item.text, item.x, startY + (item.row * spacing));
+    });
+    
+    const validityDate = addMonths(today, 0); // Need to calculate actual +14 days if needed, but keeping as string for now
+    doc.text(addMonths(new Date(today.getTime() + 14*24*60*60*1000), 0), 120, startY + (11 * spacing)); // Overwrite the validity
+
+
+    // Floor Plan Layout Placement
+    const floorPlanUrl = getFloorPlanUrl(data.unit.u);
+    if (floorPlanUrl) {
+        try {
+            const floorPlanB64 = await imageToBase64(floorPlanUrl);
+            
+            // Get image dimensions to maintain aspect ratio
+            const imgDims = await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve({ w: img.width, h: img.height });
+                img.onerror = reject;
+                img.src = floorPlanB64;
+            });
+            
+            const maxW = 128;
+            const maxH = 168;
+            const maxW = 105;
+            const maxH = 150;
+            const ratio = Math.min(maxW / imgDims.w, maxH / imgDims.h);
+            const finalW = imgDims.w * ratio;
+            const finalH = imgDims.h * ratio;
+            
+            // Center the image within the boundary
+            const finalX = 160 + (maxW - finalW) / 2;
+            const finalY = 18 + (maxH - finalH) / 2;
+            const finalX = 176 + (maxW - finalW) / 2;
+            const finalY = 28 + (maxH - finalH) / 2;
+            
+            // Extract format from base64
+            let format = 'JPEG';
+            if (floorPlanB64 && floorPlanB64.startsWith('data:image/')) {
+                const detected = floorPlanB64.substring(11, floorPlanB64.indexOf(';')).toUpperCase();
+                if (detected === 'PNG' || detected === 'WEBP') format = detected;
+            }
+            
+            if (floorPlanB64) {
+                doc.addImage(floorPlanB64, format, finalX, finalY, finalW, finalH, undefined, 'FAST');
+            } else {
+                throw new Error("Floor plan image failed to load");
+            }
+        } catch (e) {
+            console.error("Error loading floor plan:", e);
+            renderFloorPlanPlaceholder(doc);
+        }
+    } else {
+        renderFloorPlanPlaceholder(doc);
+    }
+    
+    function renderFloorPlanPlaceholder(doc) {
+        doc.setDrawColor(197, 160, 89);
+        doc.setLineDashPattern([2, 2], 0);
+        doc.rect(176, 28, 105, 150);
+        doc.setTextColor(150, 150, 150);
+        doc.text("Floor Plan Layout \n(Dynamic Image Insertion)", 228, 103, { align: 'center' });
+        doc.setLineDashPattern([], 0); // Reset dash
+    }
+
+    // PAGE 3: PAYMENT PLAN
+    doc.addPage();
+    doc.addImage(bgPlan, 'JPEG', 0, 0, 297, 210);
+    
+    const renderTwoColumns = data.schedule.length > 15;
+    let tableY = 46.5;
+    const rowHeight = 9.8;
+    doc.setFont("Gotham", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(11, 29, 51);
+
+    if (renderTwoColumns) {
+        const mid = Math.ceil(data.schedule.length / 2);
+        const col1 = data.schedule.slice(0, mid);
+        const col2 = data.schedule.slice(mid);
+
+        col1.forEach((row, idx) => {
+            const yPos = tableY + (idx * rowHeight);
+            doc.text(row.date, 30, yPos, { align: 'center' });
+            doc.text(row.desc, 75, yPos, { align: 'center' });
+            doc.text(row.percent, 115, yPos, { align: 'center' });
+            doc.text(formatter.format(row.amt), 145, yPos, { align: 'center' });
+        });
+
+        col2.forEach((row, idx) => {
+            const yPos = tableY + (idx * rowHeight);
+            doc.text(row.date, 165, yPos, { align: 'center' });
+            doc.text(row.desc, 210, yPos, { align: 'center' });
+            doc.text(row.percent, 250, yPos, { align: 'center' });
+            doc.text(formatter.format(row.amt), 280, yPos, { align: 'center' });
+        });
+
+        const totalY = tableY + (col2.length * rowHeight);
+        doc.setFillColor(245, 232, 211);
+        doc.rect(148.5, totalY - 6.5, 140.5, rowHeight, 'F');
+        doc.text("Total Payment", 210, totalY, { align: 'center' });
+        doc.text("100%", 250, totalY, { align: 'center' });
+        doc.text(formatter.format(data.netPrice + data.dldFee + data.adminFee), 280, totalY, { align: 'center' });
+    } else {
+        data.schedule.forEach((row, idx) => {
+            const yPos = tableY + (idx * rowHeight);
+            doc.text(row.date, 30, yPos, { align: 'center' });
+            doc.text(row.desc, 95, yPos, { align: 'center' });
+            doc.text(row.percent, 170, yPos, { align: 'center' });
+            doc.text(formatter.format(row.amt), 255, yPos, { align: 'center' });
+        });
+
+        const totalY = tableY + (data.schedule.length * rowHeight);
+        doc.setFillColor(245, 232, 211);
+        doc.rect(18, totalY - 6.5, 271, rowHeight, 'F');
+        doc.text("Total Payment", 170, totalY, { align: 'center' });
+        doc.text("100%", 220, totalY, { align: 'center' });
+        doc.text(formatter.format(data.netPrice + data.dldFee + data.adminFee), 272, totalY, { align: 'right' });
+    }
+
+    // PAGE 4: FINAL PAGE
+    doc.addPage();
+    doc.addImage(bgFinal, 'JPEG', 0, 0, 297, 210);
+
+    doc.save(`${serialNo}_SouthLofts1_SalesOffer.pdf`);
+}
