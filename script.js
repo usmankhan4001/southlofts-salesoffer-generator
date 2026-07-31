@@ -229,7 +229,7 @@ const imageToBase64 = async (localUrl) => {
     }
 };
 
-// Global Date Helper
+// Global Date Helper - MUST be defined before calculate() and generateProfessionalPDF()
 const addMonths = (date, months) => {
     const d = new Date(date);
     d.setMonth(d.getMonth() + months);
